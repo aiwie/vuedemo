@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../js/vue.js"></script>
+    <!-- 腾讯地图key  注意 有些api需要主动开启服务 src参数是不一样的 严格注意demo的示例-->
+    <script charset="utf-8"
+        src="https://map.qq.com/api/gljs?libraries=tools&v=1.exp&key=WZKBZ-CODRR-RA3WT-WOVFO-4X2SF-G6BSJ"></script>
+    <style>
+        #container {
+            width: 100vw;
+            height: 100vh;
+            -webkit-box-shadow:0px 3px 3px #c8c8c8 inset;
+            -moz-box-shadow:0px 3px 3px #c8c8c8 inset;
+            box-shadow: 150px 100px 90px #000 inset, -160px -48px 90px #000 inset;
+        }
+
+        .info_card {
+            width: 150px;
+            color: #DDDDDD;
+            font-size: 16px;
+            /* height: 40px; */
+            /* background: url(./img/normal_bg.png) no-repeat; */
+            /* background-size: 100% 100%; */
+        }
+
+        .info_card2 {
+            width: 270px;
+        }
+
+        .info_card .chu {
+            width: 100%;
+            height: 40px;
+            background: url('../img/mapbg.png');
+            background-size: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 15px;
+            box-sizing: border-box;
+            margin-bottom: 5px;
+        }
+
+        .weitin {
+            width: 100%;
+            height: 180px;
+            background: url('../img/mapbg.png') no-repeat;
+            background-size: 100% 100%;
+            padding: 10px 15px;
+            box-sizing: border-box;
+        }
+
+        .chu span,
+        .car_ {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-size: 100%;
+            vertical-align: middle;
+        }
+
+        .img_box {
+            margin-top: 10px;
+        }
+
+        .img_box img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .video_box {
+            width: 420px;
+            height: 467px;
+            background: url('../img/videobg.png');
+            background-size: 100% 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            left: -130px;
+        }
+
+        .video_m3u8 {
+            width: 400px;
+            height: 300px;
+        }
+
+        .video_m3u8 img {
+            width: 100%;
+            height: 100%;
+        }
+
+
+        .video_cao {
+            width: 380px;
+            border-bottom: 1px solid #DDDDDD;
+            height: 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        .video_cao>div {
+            width: 20px;
+            height: 20px;
+            background-size: 100% 100%;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .video_cao div:nth-child(1) {
+            background-image: url('../img/suo.png');
+        }
+
+        .video_cao div:nth-child(2) {
+            background-image: url('../img/jiepin.png');
+        }
+
+        .video_cao div:nth-child(3) {
+            background-image: url('../img/fang.png');
+        }
+
+        .video_content {
+            padding: 10px;
+        }
+
+        .video_content>div {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info_loudong {
+            background: url('../img/mapbg.png');
+            width: 189px;
+            height: 104px;
+            background-size: 100% 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            color: #DDDDDD;
+        }
+
+        .info_loudong>div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .biji {
+            background-image: url('../img/biji.png');
+        }
+
+        .video_ {
+            background-image: url('../img/video.png');
+        }
+
+        .car_ {
+            background-image: url('../img/car.png');
+        }
+
+        .loudong {
+            background-image: url('../img/lou.png');
+            vertical-align: inherit;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="container"></div>
+    </div>
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data(){
+                return{
+                    map: null, //地图对象
+                    infoWindow:null, //地图信息窗对象
+                }
+            },
+            mounted() {
+                this.mapInit()
+            },
+            methods: {
+                mapInit() {
+                    let self = this
+                    var center = new TMap.LatLng(30.434553, 120.281785)
+                    let sw = new TMap.LatLng(30.420977165843826, 120.26079563029782);  //西南方向的点
+                    let ne = new TMap.LatLng(30.448632865156775, 120.30694460362304);  //东北方向的点
+                    let boundary = new TMap.LatLngBounds(sw, ne);
+
+                    self.map = new TMap.Map(document.getElementById('container'), {
+                        center: center,//设置地图中心点坐标
+                        minZoom: 15,  //最小缩放级别
+                        maxZoom: 20, //最大缩放级别
+                        zoom: 17.2,   //设置地图缩放级别 3-20
+                        pitch: 10,  //设置俯仰角
+                        rotation: 0,    //设置地图旋转角度
+                        mapStyleId: "style1",  //自定义地图的样式 名称注意大小写
+                        boundary: boundary,  // 设置地图拖动范围
+                        zindex: 10
+                    });
+                    self.map.removeControl(TMap.constants.DEFAULT_CONTROL_ID.ZOOM)
+                    // map.setBoundary(boundary);
+
+                    self.infoWindow = new TMap.InfoWindow({
+                        map: self.map,
+                        enableCustom: true, //完全自定义，不要信息框外部的边框
+                        position: center, //设置信息框位置
+                        offset: { x: 0, y: -50 },
+                        content: `<div class="info_card"></div>`
+                    });
+                    self.infoWindow.close();//初始关闭信息窗关闭
+
+                    
+
+                    let arr = [
+                        {
+                            lat: '30.435139749826813',
+                            lng: "120.28095046203464",
+                            type: 1,
+                            content: {
+                                time: '2021.11.01 12:12:12'
+                            }
+                        },
+                        {
+                            lat: '30.435272992418295',
+                            lng: "120.28292692081777",
+                            type: 2,
+                            content: {
+                                louNum: '5号楼1单元',
+                                louceng: 36,
+                                hushu: 120,
+                                juming: 465,
+                                zuke: 98
+                            }
+                        },
+                        {
+                            lat: '30.43484153920661',
+                            lng: "120.2832595577463",
+                            type: 3,
+                            content: {
+                                video_name: '地上出口监控',
+                                ip: "1932.168.1.86",
+                                glname: "车入口-北围墙-05-jk76"
+                            }
+                        },
+                        {
+                            lat: '30.433927581186875',
+                            lng: "120.2819288047724",
+                            type: 4,
+                            content: {
+                                time: '2021.11.01 12:12:12'
+                            }
+                        }
+                    ]
+
+                    for (let i = 0; i < arr.length; i++) {
+                        //循环添加marker
+                        this.addMarker(arr[i])
+                    }
+
+
+
+                    //围栏坐标
+                    var simplePath = [
+                        new TMap.LatLng(30.435230617600116, 120.28006046825794),
+                        new TMap.LatLng(30.434193600602363, 120.28051618952861),
+                        new TMap.LatLng(30.43318860519457, 120.28104635926888),
+                        new TMap.LatLng(30.433428694798387, 120.28192206178119),
+                        new TMap.LatLng(30.433707356325165, 120.28273830485193),
+                        new TMap.LatLng(30.434024118772292, 120.28350874646901),
+                        new TMap.LatLng(30.434379356217672, 120.28427907111677),
+                        new TMap.LatLng(30.43577300158167, 120.28350122374945),
+                        new TMap.LatLng(30.435733651839072, 120.28257794823264),
+                        new TMap.LatLng(30.435610853826045, 120.28172140680829),
+                        new TMap.LatLng(30.435230617600116, 120.28006046825794),
+                    ];
+                    var polygon = new TMap.MultiPolyline({  //MultiPolygon ,MultiPolyline
+                        map: self.map, //显示多边形图层的底图
+                        styles: {
+                            'style_blue': new TMap.PolylineStyle({
+                                color: '#1794B3', //线填充色
+                                // showBorder:true, 
+                                borderColor: "#1794B3",
+                                borderWidth: 1, //边线宽度
+                                borderDashArray: [0.0], //边线虚线虚线展示方式，[0, 0]为实线，[10, 10]
+                            })
+                        },
+                        geometries: [{ //设置多边形的数据
+                            paths: simplePath,
+                            styleId: 'style_blue'
+                        }]
+                    });
+
+                    // var editor = new TMap.tools.GeometryEditor({
+                    //     map, // 编辑器绑定的地图对象
+                    //     overlayList: [ // 可编辑图层
+                    //         {
+                    //             overlay: new TMap.MultiPolygon({
+                    //                 map,
+                    //                 styles: {
+                    //                     highlight: new TMap.PolygonStyle({
+                    //                         color: '#fff', //线填充色
+                    //                         width: 6, //折线宽度
+                    //                         borderWidth: 5, //边线宽度
+                    //                         borderColor: '#FFF', //边线颜色
+                    //                         lineCap: 'butt' //线端头方式
+                    //                     })
+                    //                 },
+                    //                 geometries: [
+                    //                     {
+                    //                         paths: simplePath
+                    //                     },
+                    //                 ]
+                    //             }),
+                    //             id: 'polygon',
+                    //             selectedStyleId: 'highlight',
+                    //             styleId: 'highlight'
+                    //         }
+                    //     ],
+                    //     // actionMode: TMap.tools.constants.EDITOR_ACTION.INTERACT, // 编辑器的工作模式
+                    //     // activeOverlayId: 'polygon', // 激活图层
+                    //     // selectable: true, // 开启点选功能
+                    //     // snappable: true // 开启吸附
+                    // });
+
+                    // let evtList = ['delete', 'adjust', 'split', 'union'];
+                    // evtList.forEach(evtName => {
+                    //     editor.on(evtName + '_complete', evtResult => {
+                    //         console.log(evtName, evtResult);
+                    //     });
+                    // });
+
+
+
+                    self.map.on('click', function (e) {
+                        let posit = e.latLng
+                        console.log(posit)
+                        self.infoWindow.close()
+                    })
+                },
+                  //地图添加marker事件
+                  addMarker(obj) {
+                    let self = this
+                    let iconType = obj.type
+                    let iconurl = ''
+                    switch (iconType) {
+                        case 1:
+                            iconurl = '../img/redCar.png';
+                            break;
+                        case 2:
+                            iconurl = '../img/juminicon.png';
+                            break;
+                        case 3:
+                            iconurl = '../img/mapicon3.png';
+                            break;
+                        case 4:
+                            iconurl = '../img/redxiaoicon.png';
+                            break;
+                    }
+                    console.log(iconurl)
+                    var marker = new TMap.MultiMarker({
+                        map: self.map,
+                        styles: {
+                            myStyle: new TMap.MarkerStyle({
+                                width: 35,  // 点标记样式宽度（像素）
+                                height: 35, // 点标记样式高度（像素）
+                                src: iconurl,  //图片路径
+                                //焦点在图片中的像素位置，一般大头针类似形式的图片以针尖位置做为焦点，圆形点以圆心位置为焦点
+                                anchor: { x: 16, y: 32 }
+                            })
+                        },
+                        geometries: [
+                            {
+                                // 标记位置(经度，纬度，高度)
+                                position: new TMap.LatLng(obj.lat, obj.lng, 0),
+                                styleId: 'myStyle',  //指定样式id
+                                type: obj.type,
+                                content: obj.content
+                            }
+                        ],
+                    });
+                    console.log(marker)
+                    marker.on("click",self.eventClick)
+
+                    //动态改变marker图标
+                    marker.on("hover",function(){
+                        marker.setStyles({
+                            "myStyle": new TMap.MarkerStyle({
+                                src:'../img/redxiaoicon.png'
+                            })
+                        })
+                    })
+                  
+                   
+                },
+                //地图信息窗事件
+                eventClick(evt){
+                        console.log(evt)
+                        let self = this
+                        let type = evt.geometry.type
+                        let content = evt.geometry.content
+                        var html;
+                        if (type == 1) {
+                            html = `<div class="info_card info_card2">
+                                        <div class="chu">
+                                            <div><span class="biji"></span>出入记录</div>
+                                        </div>
+                                        <div class="chu">
+                                            <div><span class="video_"></span>地上出口监控</div>
+                                        </div>
+                                        <div class="weitin">
+                                            <div><span class="car_"></span>${content.time}</div>
+                                            <div class="img_box"><img src="./img/weitincar.png" ></div>
+                                        </div>
+                                    </div>`
+
+                        } else if (type == 2) {
+                            html = `<div class="info_loudong" id="louid">
+                                    <div class="chu">
+                                        <div><span class="loudong"></span>${content.louNum}</div>
+                                    </div>
+                                    <div class=""><span>楼层：${content.louceng}</span><span>户数：${content.hushu}</span></div>
+                                    <div><span>居民：${content.juming}</span><span>租客：${content.zuke}</span></div>
+                                </div>`
+                        } else if (type == 3) {
+                            html = `<div class="info_card">
+                                        <div class="chu">
+                                            <div><span class="biji"></span>出入记录</div>
+                                        </div>
+                                        <div class="chu">
+                                            <div><span class="video_"></span>地上出口监控</div>
+                                        </div>
+                                        <div class="video_box">
+                                            <div class="video_m3u8">
+                                                <img src="./img/vvvideo.png" >
+                                            </div>
+                                            <div class="video_cao">
+                                                <div id="suoxiao"></div>
+                                                <div id="jiepin"></div>
+                                                <div id="fangda"></div>
+                                            </div>
+                                            <div class="video_content">
+                                                <div><span>监控名称</span><span>${content.video_name}</span></div>
+                                                <div><span>IP地址</span><span>${content.ip}</span></div>
+                                                <div><span>管理名称</span><span>${content.glname}</span></div>
+                                            </div>
+                                        </div>
+                                </div>`
+                        } else if (type == 4) {
+                            html = `<div class="info_card info_card2" id="eventC">
+                                        <div class="weitin">
+                                            <div><span class="car_"></span>${content.time}</div>
+                                            <div class="img_box"><img src="./img/weitincar.png" ></div>
+                                        </div>
+                                    </div>`
+                        }
+
+
+
+
+
+                        self.infoWindow.open(); //打开信息窗
+                        self.infoWindow.setPosition(evt.geometry.position);//设置信息窗位置
+                        self.infoWindow.setContent(html);//设置信息窗内容
+
+
+                        var suoxiao = document.getElementById('suoxiao')
+                        var jiepin = document.getElementById('jiepin')
+                        var fangda = document.getElementById('fangda')
+                        var louid = document.getElementById('louid')
+                        var eventC = document.getElementById('eventC')
+                        if (suoxiao || jiepin || fangda) {
+                            suoxiao.addEventListener('click', function () {
+                                alert('缩小')
+                            })
+                            jiepin.addEventListener('click', function () {
+                                alert('截屏')
+                            })
+                            fangda.addEventListener('click', function () {
+                                alert('放大')
+                            })
+                        }
+
+                        //2号弹窗点击事件
+                        if (louid) {
+                            louid.addEventListener('click', function () {
+                                self.lou_dialogisShow = true
+                            })
+                        }
+
+                        //3号弹窗点击事件
+                        if (eventC) {
+                            eventC.addEventListener('click', function () {
+                                self.dialog_eventisShow = true
+                            })
+                        }
+
+
+
+                    }
+
+            }
+        })
+
+
+    </script>
+</body>
+
+</html>

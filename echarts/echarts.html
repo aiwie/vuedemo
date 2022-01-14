@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../js/vue.js"></script>
+    <script src="../js/echarts.js"></script>
+    <style>
+        #app>div{position: relative;}
+        #echart1,#echart2,#echart3{
+            width: 500px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" style="background: #020D2B;">
+        <div>
+            <div id="echart1"></div>
+        </div>
+        <div>
+            <div id="echart2"></div>
+        </div>
+        <div>
+            <div id="echart3"></div>
+        </div>
+        
+       
+      
+    </div>
+    <script>
+        var vm = new Vue({
+            el:"#app",
+            data(){
+                return {
+                    myChart1: "",
+                    myChart2: "",
+                    myChart3: "",
+                }
+            },
+            mounted(){
+                this.echartsInit()
+                this.echartslineInit()
+                this.echartspieInit()
+                let self = this
+                window.onresize = () => {
+                    self.myChart1.resize()
+                    self.myChart2.resize()
+                    self.myChart3.resize()
+                }
+            },
+            methods:{
+                // 表一
+                echartsInit() {
+                    this.myChart1 = echarts.init(document.getElementById('echart1'));
+
+                    let data = {
+                        title: '车辆进出',
+                        xlabledta: ['0点', '4点', '8点', '12点', '16点', '20点', '24点'],
+                        data: [10, 52, 200, 334, 390, 330, 220],
+                    }
+
+                    this.myChart1.setOption(this.optionConfig(data));
+
+                },
+                // 表二
+                echartslineInit() {
+                    this.myChart2 = echarts.init(document.getElementById('echart2'));
+
+                    let data = {
+                        title: '人员进出',
+                        xlabledta: ['0点', '4点', '8点', '12点', '16点', '20点', '24点'],
+                        data: [10, 52, 200, 334, 390, 330, 220],
+                    }
+
+                    this.myChart2.setOption(this.optionConfig(data));
+
+                },
+                //表三
+                echartspieInit() {
+                    this.myChart3 = echarts.init(document.getElementById('echart3'));
+                    let self = this
+                    let data = [
+                        { value: 350, name: '常住房350间（35%）' },
+                        { value: 250, name: '出租房250间（25%）' },
+                        { value: 180, name: '商户180间（18%）' },
+                        { value: 90, name: '闲置房90间（9%）' },
+                        { value: 30, name: '未售出30间（3%）' }
+                    ]
+
+
+                    var option;
+                    var total = 3016 //总量
+                    option = {
+                        title: {
+                            zlevel: 0,
+                            text: [
+                                '{value|' + total + '}',
+                                '{name|居住空间}',
+                            ].join('\n'),
+                            top: 'center',
+                            left: '28%',
+                            textAlign: 'center',
+                            textStyle: {
+                                rich: {
+                                    value: {
+                                        color: '#FFF000',
+                                        fontSize: 36,
+                                        // fontWeight: 'bold',
+                                        // lineHeight: 40,
+                                        fontFamily: 'mono'
+                                    },
+                                    name: {
+                                        color: '#909399',
+                                        lineHeight: 20
+                                    },
+                                },
+                            },
+                        },
+                        legend: {
+                            itemHeight: 15,
+                            itemWidth: 15,
+                            orient: 'vertical',
+                            right: 0,
+                            top: 20,
+                            bottom: 20,
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        color: ['#008CFF', '#008CFF', '#00CDE4', '#80FFC6', '#2900FF'],
+                        series: [
+                            {
+                                type: 'pie',
+                                radius: ['50%', '70%'],
+                                center: ['30%', '50%'],
+                                data: data,
+                                hoverAnimation: true,
+                                labelLine: {
+                                    normal: {
+                                        show: false,
+                                        length: 5,
+                                        lineStyle: {
+                                            color: '#fff'
+                                        }
+                                    }
+                                },
+                                label: {
+                                    normal: {
+                                        show: false,
+                                        textStyle: {
+                                            color: '#fff'
+                                        },
+                                        formatter: '{name|{b}}\n {per|{d}%}',
+                                        minMargin: 5,
+                                        edgeDistance: 10,
+                                        lineHeight: 15,
+                                        rich: {
+                                            time: {
+                                                fontSize: 10,
+                                                color: '#999'
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                type: 'pie',
+                                radius: ['43%', '45%'],
+                                center: ['30%', '50%'],
+                                data: [
+                                    { value: 1048, itemStyle: { color: '#1E273C' } },
+                                ],
+                                hoverAnimation: false,
+                                labelLine: {
+                                    normal: {
+                                        show: false
+                                    }
+                                }
+                            }
+                        ]
+                    };
+
+                    option && this.myChart3.setOption(option);
+                },
+                // 折线图表配置函数
+                optionConfig(data) {
+                    return option = {
+                        title: {
+                            text: data.title,
+                            textStyle: {
+                                // color:'#DDDDDD',
+                                color: '#bbbbbb',
+                                fontSize: 16
+                            }
+                        },
+                        legend: {
+                            itemHeight: 15,
+                            itemWidth: 15,
+                            icon: 'rect',
+                            // orient: 'vertical',
+                            // right: 0,
+                            left: 70,
+                            // top: 20,
+                            // bottom: 20,
+                            textStyle: {
+                                color: '#fff'
+                            },
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            // axisPointer: {
+                            //     type: 'shadow'
+                            // },
+                            backgroundColor: "transparent",
+                            borderWidth: 0,
+                            padding: 0,
+                            formatter: function (params) {
+                                console.log(params)
+                                console.log(params[0].seriesName)
+                                // var str = `<div style="background:url(${require("./img/normal_bg.png")}) no-repeat 100% 100%;
+                                //                 width:60px;height:60px">
+                                //                 ${params["percent"]}
+                                //                 </div>`;
+                                var str = `<div style="background:rgba(0, 35, 83, 0.9);
+                                                width:167px;height:65px;padding:10px;box-sizing: border-box;">
+                                                <p>${params[0].axisValue}</p>
+                                                <div style="display:flex;align-content: center;justify-content: space-between;">
+                                                    <p>${params[0].seriesName}:${params[0].value}</p>
+                                                    <p>${params[1].seriesName}:${params[1].value}</p>
+                                                </div>
+                                                </div>`;
+                                return str
+                            }
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: data.xlabledta,
+                            axisTick: {
+                                alignWithLabel: true,
+                                show: false
+                            },
+                            axisLine: {
+                                show: true //x轴是否显示
+                            },
+                            axisLabel: {
+                                color: '#FFFFFF',
+                                interval: 0
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            // splitNumber: 10,
+                            // minInterval: 1,
+                            axisLine: {
+                                show: false
+                            },
+                            axisLabel: {
+                                // color: '#fff'
+                                color: '#bbbbbb'
+                            },
+                            axisTick: {
+                                show: false
+                            },
+                            splitLine: {
+                                show: false,
+                                lineStyle: {
+                                    // color: 'rgba(41, 86, 110, .1)'
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                type: 'line',
+                                name: '进入',
+                                data: data.data,
+                                symbol: 'none',
+                                smooth: true,
+                                // areaStyle: {
+                                //     opacity: 0.8,
+                                //     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                //         {
+                                //             offset: 0,
+                                //             color: 'rgb(128, 255, 165)'
+                                //         },
+                                //         {
+                                //             offset: 1,
+                                //             color: 'rgba(1, 191, 236,0.1)'
+                                //         }
+                                //     ])
+                                // },
+                                itemStyle: {
+                                    normal: {
+                                        color: "#00F0FF"
+                                    }
+                                }
+                            },
+                            {
+                                type: 'line',
+                                name: '离开',
+                                data: [15, 32, 120, 330, 350, 290, 250],
+                                symbol: 'none',
+                                smooth: true,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#FFF000'
+                                    }
+                                }
+                            },
+                        ]
+                    };
+                },
+                
+            }
+        })
+
+
+    </script>
+
+</body>
+</html>
